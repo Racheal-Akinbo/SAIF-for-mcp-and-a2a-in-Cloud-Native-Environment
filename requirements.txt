@@ -1,0 +1,6 @@
+mcp
+a2a-sdk
+fastapi
+uvicorn
+httpx
+pydantic

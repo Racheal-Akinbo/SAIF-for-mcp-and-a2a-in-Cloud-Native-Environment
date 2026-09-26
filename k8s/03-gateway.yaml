@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: mcp-a2a-demo
+  labels:
+    app: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+      # annotations:
+      #   linkerd.io/inject: enabled
+    spec:
+      containers:
+        - name: gateway
+          image: mcp-a2a-demo:local
+          imagePullPolicy: IfNotPresent
+          command: ["python3", "gateway/app.py"]
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "8000"
+            - name: MCP_URL
+              value: "http://mcp.mcp-a2a-demo.svc.cluster.local:8001/mcp"
+            - name: A2A_BASE
+              value: "http://a2a.mcp-a2a-demo.svc.cluster.local:8002"
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  namespace: mcp-a2a-demo
+spec:
+  # Still ClusterIP -- reached from your machine via `kubectl port-forward`
+  # (see k8s/README.md), which works identically on every cluster type
+  # without needing a cloud load balancer or NodePort firewall rules.
+  selector:
+    app: gateway
+  ports:
+    - port: 8000
+      targetPort: 8000

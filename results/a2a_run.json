@@ -1,0 +1,38 @@
+[
+  {
+    "scenario": "happy_path",
+    "protocol": "A2A",
+    "outcome": "success",
+    "task_state": "completed",
+    "discovered_skills": [
+      "get_order_status"
+    ],
+    "discover_ms": 1.8,
+    "call_ms": 1.61,
+    "payload_bytes": 290,
+    "response": "{\"jsonrpc\":\"2.0\",\"id\":\"e56c5d44-2952-4684-9a54-729435a5a7e6\",\"result\":{\"id\":\"b1ca3c14-865c-43f6-b2f7-548635d9cf20\",\"status\":{\"state\":\"completed\"},\"artifacts\":[{\"name\":\"order_status\",\"parts\":[{\"kind\":\"data\",\"data\":{\"order_id\":\"ORD-1001\",\"status\":\"shipped\",\"eta_days\":2,\"carrier\":\"UPS\"}}]}]}}",
+    "total_ms": 23.83
+  },
+  {
+    "scenario": "no_auth",
+    "protocol": "A2A",
+    "outcome": "rejected",
+    "http_status": 401,
+    "error": "Unauthorized: missing or invalid bearer token",
+    "total_ms": 23.15
+  },
+  {
+    "scenario": "bad_order",
+    "protocol": "A2A",
+    "outcome": "error",
+    "task_state": "failed",
+    "discovered_skills": [
+      "get_order_status"
+    ],
+    "discover_ms": 1.66,
+    "call_ms": 0.99,
+    "payload_bytes": 182,
+    "response": "{\"jsonrpc\":\"2.0\",\"id\":\"ef50d34a-b4a2-4004-b07e-85bf3b6d7da1\",\"result\":{\"id\":\"02c070bc-359b-4315-b10e-51df3deb2c3d\",\"status\":{\"state\":\"failed\",\"message\":\"'No such order: ORD-9999'\"}}}",
+    "total_ms": 22.64
+  }
+]

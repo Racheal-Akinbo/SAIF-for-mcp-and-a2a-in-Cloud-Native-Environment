@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a2a
+  namespace: mcp-a2a-demo
+  labels:
+    app: a2a
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: a2a
+  template:
+    metadata:
+      labels:
+        app: a2a
+      # annotations:
+      #   linkerd.io/inject: enabled
+    spec:
+      containers:
+        - name: a2a
+          image: mcp-a2a-demo:local
+          imagePullPolicy: IfNotPresent
+          command: ["python3", "a2a_app/server.py"]
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "8002"
+            # Agent Card must advertise an address other pods can reach --
+            # the Service DNS name, not 127.0.0.1 or the pod's own IP.
+            - name: A2A_PUBLIC_URL
+              value: "http://a2a.mcp-a2a-demo.svc.cluster.local:8002/a2a"
+          ports:
+            - containerPort: 8002
+          readinessProbe:
+            httpGet:
+              path: /.well-known/agent.json
+              port: 8002
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: a2a
+  namespace: mcp-a2a-demo
+spec:
+  selector:
+    app: a2a
+  ports:
+    - port: 8002
+      targetPort: 8002

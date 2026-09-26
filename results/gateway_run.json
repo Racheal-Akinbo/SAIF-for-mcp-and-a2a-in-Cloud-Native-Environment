@@ -1,0 +1,46 @@
+[
+  {
+    "case": "unified_success_mcp",
+    "status": 200,
+    "body": {
+      "error": false,
+      "source_protocol": "mcp",
+      "order_id": "ORD-1001",
+      "status": "shipped",
+      "eta_days": 2,
+      "carrier": "UPS",
+      "gateway_latency_ms": 49.23
+    }
+  },
+  {
+    "case": "unified_success_a2a",
+    "status": 200,
+    "body": {
+      "error": false,
+      "source_protocol": "a2a",
+      "order_id": "ORD-1002",
+      "status": "processing",
+      "eta_days": 5,
+      "carrier": null,
+      "gateway_latency_ms": 20.55
+    }
+  },
+  {
+    "case": "invalid_gateway_token",
+    "status": 401,
+    "body": {
+      "error": true,
+      "code": "unauthorized",
+      "message": "missing or invalid gateway token"
+    }
+  },
+  {
+    "case": "replay_attack",
+    "status": 409,
+    "body": {
+      "error": true,
+      "code": "replay_detected",
+      "message": "request_id e964f468-014c-424b-8610-64a0c414532f was already processed"
+    }
+  }
+]

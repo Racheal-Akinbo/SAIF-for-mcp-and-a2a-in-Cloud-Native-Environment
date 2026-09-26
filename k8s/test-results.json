@@ -1,0 +1,42 @@
+﻿[
+    {
+        "Test":  "MCP happy path",
+        "Pass":  false,
+        "Detail":  "HTTP 502"
+    },
+    {
+        "Test":  "A2A happy path",
+        "Pass":  true,
+        "Detail":  "HTTP 200"
+    },
+    {
+        "Test":  "MCP bad order -\u003e 404",
+        "Pass":  false,
+        "Detail":  "HTTP 502"
+    },
+    {
+        "Test":  "Wrong token -\u003e 401",
+        "Pass":  true,
+        "Detail":  "HTTP 401"
+    },
+    {
+        "Test":  "Replay: first attempt succeeds",
+        "Pass":  true,
+        "Detail":  "HTTP 200"
+    },
+    {
+        "Test":  "Replay: second attempt blocked -\u003e 409",
+        "Pass":  true,
+        "Detail":  "HTTP 409"
+    },
+    {
+        "Test":  "Direct pod-to-mcp access blocked",
+        "Pass":  false,
+        "Detail":  "curl got a response (401) -- NetworkPolicy is NOT being enforced by this cluster\u0027s CNI. See k8s/README.md Step 5 (Docker Desktop does not enforce NetworkPolicy by default)."
+    },
+    {
+        "Test":  "Gateway still reachable from other pods",
+        "Pass":  true,
+        "Detail":  "HTTP 200"
+    }
+]

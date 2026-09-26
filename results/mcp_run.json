@@ -1,0 +1,36 @@
+[
+  {
+    "scenario": "happy_path",
+    "protocol": "MCP",
+    "outcome": "success",
+    "discovered_tools": [
+      "get_order_status"
+    ],
+    "discover_ms": 6.86,
+    "call_ms": 5.55,
+    "payload_bytes": 172,
+    "response": "[{\"type\": \"text\", \"text\": \"{\\n  \\\"order_id\\\": \\\"ORD-1001\\\",\\n  \\\"status\\\": \\\"shipped\\\",\\n  \\\"eta_days\\\": 2,\\n  \\\"carrier\\\": \\\"UPS\\\"\\n}\", \"annotations\": null, \"meta\": null}]",
+    "total_ms": 43.94
+  },
+  {
+    "scenario": "no_auth",
+    "protocol": "MCP",
+    "outcome": "rejected",
+    "error_type": "ExceptionGroup",
+    "error": "unhandled errors in a TaskGroup (1 sub-exception)",
+    "total_ms": 22.04
+  },
+  {
+    "scenario": "bad_order",
+    "protocol": "MCP",
+    "outcome": "error",
+    "discovered_tools": [
+      "get_order_status"
+    ],
+    "discover_ms": 6.13,
+    "call_ms": 5.1,
+    "payload_bytes": 102,
+    "response": "[{\"type\": \"text\", \"text\": \"Error executing tool get_order_status\", \"annotations\": null, \"meta\": null}]",
+    "total_ms": 38.69
+  }
+]

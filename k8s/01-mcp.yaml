@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp
+  namespace: mcp-a2a-demo
+  labels:
+    app: mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcp
+  template:
+    metadata:
+      labels:
+        app: mcp
+      # To put this pod behind a service mesh with automatic mTLS (Linkerd),
+      # uncomment the line below after installing the mesh control plane --
+      # see k8s/README.md "Adding a service mesh" section.
+      # annotations:
+      #   linkerd.io/inject: enabled
+    spec:
+      containers:
+        - name: mcp
+          image: mcp-a2a-demo:local
+          imagePullPolicy: IfNotPresent
+          command: ["python3", "mcp_app/server.py"]
+          env:
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "8001"
+          ports:
+            - containerPort: 8001
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8001
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp
+  namespace: mcp-a2a-demo
+spec:
+  # ClusterIP (the default): reachable only from inside the cluster.
+  # No external exposure -- callers reach this backend only through the
+  # gateway, matching the architecture in report.md Section 4.
+  selector:
+    app: mcp
+  ports:
+    - port: 8001
+      targetPort: 8001

@@ -1,0 +1,58 @@
+# Brings up all three services as separate containers on a shared bridge
+# network. This is the actual point of this file: inside the container
+# network, the gateway reaches the MCP and A2A backends by their service
+# names (http://mcp:8001, http://a2a:8002) -- real inter-container
+# networking, not shared-localhost the way every previous test in this
+# project ran. This is the first genuinely containerized test of the system.
+#
+# Run:   docker compose up --build
+# Then:  open http://127.0.0.1:8000/ on the host -- the gateway's port is
+#        published to the host, same dashboard as the non-container runs.
+# Stop:  docker compose down
+
+services:
+  mcp:
+    build: .
+    command: python3 mcp_app/server.py
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8001
+    ports:
+      - "8001:8001"
+    networks:
+      - mcp-a2a-net
+
+  a2a:
+    build: .
+    command: python3 a2a_app/server.py
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8002
+      # Agent Card must advertise an address other containers can reach --
+      # "a2a" is this container's DNS name on the compose network, not
+      # 127.0.0.1 (which inside this container means only itself).
+      - A2A_PUBLIC_URL=http://a2a:8002/a2a
+    ports:
+      - "8002:8002"
+    networks:
+      - mcp-a2a-net
+
+  gateway:
+    build: .
+    command: python3 gateway/app.py
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - MCP_URL=http://mcp:8001/mcp
+      - A2A_BASE=http://a2a:8002
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mcp
+      - a2a
+    networks:
+      - mcp-a2a-net
+
+networks:
+  mcp-a2a-net:
+    driver: bridge

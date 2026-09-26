@@ -1,0 +1,44 @@
+[
+  {
+    "scenario": "happy_path",
+    "protocol": "MCP",
+    "outcome": "success",
+    "total_ms": 43.94,
+    "payload_bytes": 172
+  },
+  {
+    "scenario": "happy_path",
+    "protocol": "A2A",
+    "outcome": "success",
+    "total_ms": 23.83,
+    "payload_bytes": 290
+  },
+  {
+    "scenario": "no_auth",
+    "protocol": "MCP",
+    "outcome": "rejected",
+    "total_ms": 22.04,
+    "payload_bytes": null
+  },
+  {
+    "scenario": "no_auth",
+    "protocol": "A2A",
+    "outcome": "rejected",
+    "total_ms": 23.15,
+    "payload_bytes": null
+  },
+  {
+    "scenario": "bad_order",
+    "protocol": "MCP",
+    "outcome": "error",
+    "total_ms": 38.69,
+    "payload_bytes": 102
+  },
+  {
+    "scenario": "bad_order",
+    "protocol": "A2A",
+    "outcome": "error",
+    "total_ms": 22.64,
+    "payload_bytes": 182
+  }
+]

@@ -1,0 +1,25 @@
+# A deliberately unlabeled pod (no app=gateway label), representing an
+# attacker or a misconfigured/compromised pod elsewhere in the cluster.
+# Use it to prove the NetworkPolicies in 04-network-policies.yaml are
+# actually enforced, not just declared:
+#
+#   kubectl exec -n mcp-a2a-demo -it netpol-test -- \
+#     curl -sm 5 -o /dev/null -w "%{http_code}\n" http://mcp.mcp-a2a-demo.svc.cluster.local:8001/mcp
+#
+# Expected: this hangs and times out (connection blocked at the network
+# layer), NOT a fast 401/403 -- a fast rejection would mean the request
+# reached the mcp pod and was rejected by its own logic; a timeout means
+# NetworkPolicy dropped the packets before they got there at all. See
+# k8s/README.md Step 5 for the full walkthrough and what each result means.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: netpol-test
+  namespace: mcp-a2a-demo
+  labels:
+    app: netpol-test  # deliberately NOT "gateway"
+spec:
+  containers:
+    - name: curl
+      image: curlimages/curl:latest
+      command: ["sleep", "3600"]

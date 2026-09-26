@@ -1,0 +1,86 @@
+# These NetworkPolicies enforce, at the infrastructure layer, the same
+# trust boundary the gateway already enforces at the application layer:
+# only the gateway may talk to mcp/a2a directly. Everything else in the
+# namespace (including a compromised or malicious pod that isn't the
+# gateway) is denied by default.
+#
+# Requires a CNI that enforces NetworkPolicy (Calico, Cilium, etc).
+# Docker Desktop's bundled Kubernetes does NOT enforce NetworkPolicy by
+# default -- see k8s/README.md for how to check and what to do about it.
+# minikube supports it via `minikube start --cni=calico`.
+
+# 1. Default-deny all ingress in this namespace. Nothing is reachable
+#    unless a more specific policy below explicitly allows it.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: mcp-a2a-demo
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+# 2. Only pods labeled app=gateway may reach mcp on port 8001.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-gateway-to-mcp
+  namespace: mcp-a2a-demo
+spec:
+  podSelector:
+    matchLabels:
+      app: mcp
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: gateway
+      ports:
+        - protocol: TCP
+          port: 8001
+---
+# 3. Only pods labeled app=gateway may reach a2a on port 8002.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-gateway-to-a2a
+  namespace: mcp-a2a-demo
+spec:
+  podSelector:
+    matchLabels:
+      app: a2a
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: gateway
+      ports:
+        - protocol: TCP
+          port: 8002
+---
+# 4. The gateway itself accepts traffic from anywhere in the namespace
+#    (including kubectl port-forward, which arrives as if from the
+#    apiserver/kubelet rather than a labeled pod -- this rule is
+#    deliberately permissive on ingress source so port-forward testing
+#    keeps working; the actual caller-facing security control is the
+#    gateway's own bearer-token check, not network position).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-gateway
+  namespace: mcp-a2a-demo
+spec:
+  podSelector:
+    matchLabels:
+      app: gateway
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8000
